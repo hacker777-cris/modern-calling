@@ -34,11 +34,10 @@ def login_view(request):
 
     return render(request, 'login.html')
 
-@login_required
 def dashboard(request):
     return render(request, 'dashboard.html', {'name': request.user.first_name})
 
-@login_required
+
 def videocall(request):
     return render(request, 'videocall.html', {'name': request.user.first_name + " " + request.user.last_name})
 
@@ -47,7 +46,7 @@ def logout_view(request):
     logout(request)
     return redirect("/login")
 
-@login_required
+
 def join_room(request):
     if request.method == 'POST':
         roomID = request.POST['roomID']
