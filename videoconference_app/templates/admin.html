@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recording Management</title>
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-8">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Manage Recordings</h1>
+
+    <!-- Dropdown to Select Recordings -->
+    <div class="mb-6">
+        <label for="recordings" class="block mb-2 text-gray-800">Select Recording:</label>
+        <select id="recordings" name="recordings" class="border border-gray-300 rounded px-4 py-2">
+            <option value="" disabled selected class="text-gray-500">Select a Recording</option>
+            {% for recording in recordings %}
+                <option value="{{ recording.id }}">{{ recording.title }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Display Recording Preview -->
+    <div class="mb-8">
+        <h2 class="text-lg font-semibold mb-2 text-gray-800">Recording Preview:</h2>
+        <div id="previewPlaceholder" class="bg-gray-200 rounded-lg overflow-hidden">
+            <!-- Placeholder for Recording Preview -->
+            <p class="p-4 text-center text-gray-600">No preview available</p>
+        </div>
+    </div>
+
+    <!-- Display Recordings List -->
+    <div>
+        <h2 class="text-lg font-semibold mb-4 text-gray-800">Recordings:</h2>
+        <ul class="divide-y divide-gray-300">
+            {% for recording in recordings %}
+                <li class="py-3 flex items-center justify-between">
+                    <span class="text-gray-800">{{ recording.title }}</span>
+                    <a href="{% url 'download_recording' recording.id %}" class="text-blue-500 hover:underline">Download</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script>
+        const recordingsDropdown = document.getElementById('recordings');
+        const previewPlaceholder = document.getElementById('previewPlaceholder');
+    
+        recordingsDropdown.addEventListener('change', function() {
+            const selectedRecordingId = this.value;
+            if (selectedRecordingId) {
+                // Create a video element
+                const videoElement = document.createElement('video');
+                videoElement.setAttribute('controls', ''); // Add controls for the video player
+                videoElement.classList.add('w-full', 'max-w-md'); // Apply Tailwind CSS classes
+    
+                // Create a source element for the video
+                const sourceElement = document.createElement('source');
+                sourceElement.setAttribute('src', `/download/${selectedRecordingId}/`);
+                sourceElement.setAttribute('type', 'video/mp4'); // Set the appropriate MIME type
+    
+                // Append the source element to the video element
+                videoElement.appendChild(sourceElement);
+    
+                // Remove any existing preview
+                previewPlaceholder.innerHTML = '';
+    
+                // Append the video element to the placeholder
+                previewPlaceholder.appendChild(videoElement);
+            } else {
+                previewPlaceholder.textContent = 'No preview available';
+            }
+        });
+    </script>
+</body>
+</html>

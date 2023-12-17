@@ -1,68 +1,137 @@
+<!DOCTYPE html>
 <html>
 
 <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
     <style>
         #root {
             width: 100vw;
             height: 100vh;
-            }
+        }
     </style>
+    
 </head>
-
 
 <body>
     <div id="root"></div>
-</body>
-<script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
-<script>
-window.onload = function () {
-    function getUrlParams(url) {
-        let urlStr = url.split('?')[1];
-        const urlSearchParams = new URLSearchParams(urlStr);
-        const result = Object.fromEntries(urlSearchParams.entries());
-        return result;
-    }
+    {% if request.user.is_staff %}
+    <button id="recordButton" onclick="toggleRecording()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600">Start Recording</button>
+{% endif %}
+    <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
+    <script>
+        window.onload = function () {
+            function getUrlParams(url) {
+                let urlStr = url.split('?')[1];
+                const urlSearchParams = new URLSearchParams(urlStr);
+                const result = Object.fromEntries(urlSearchParams.entries());
+                return result;
+            }
 
+            const roomID = getUrlParams(window.location.href)['roomID'] || (Math.floor(Math.random() * 10000) + "");
+            const userID = Math.floor(Math.random() * 10000) + "";
+            const userName = "{{ name }}"
+            const appID = 978269005; // Change this
+            const serverSecret = "3143777d060d541f39c90fe40f897de2"; // Change this
+            const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
 
-        // Generate a Token by calling a method.
-        // @param 1: appID
-        // @param 2: serverSecret
-        // @param 3: Room ID
-        // @param 4: User ID
-        // @param 5: Username
-    const roomID = getUrlParams(window.location.href)['roomID'] || (Math.floor(Math.random() * 10000) + "");
-    const userID = Math.floor(Math.random() * 10000) + "";
-    const userName = "{{ name }}"
-    const appID = 978269005; //change this
-    const serverSecret = "3143777d060d541f39c90fe40f897de2"; // change this
-    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
+            const zp = ZegoUIKitPrebuilt.create(kitToken);
+            zp.joinRoom({
+                container: document.querySelector("#root"),
+                sharedLinks: [{
+                    name: 'Personal link',
+                    url: window.location.protocol + '//' + window.location.host + window.location.pathname + '?roomID=' + roomID,
+                }],
+                scenario: {
+                    mode: ZegoUIKitPrebuilt.VideoConference,
+                },
 
-    
-        const zp = ZegoUIKitPrebuilt.create(kitToken);
-        zp.joinRoom({
-            container: document.querySelector("#root"),
-            sharedLinks: [{
-                name: 'Personal link',
-                url: window.location.protocol + '//' + window.location.host  + window.location.pathname + '?roomID=' + roomID,
-            }],
-            scenario: {
-                mode: ZegoUIKitPrebuilt.VideoConference,
-            },
-                
-           	turnOnMicrophoneWhenJoining: false,
-           	turnOnCameraWhenJoining: false,
-           	showMyCameraToggleButton: true,
-           	showMyMicrophoneToggleButton: true,
-           	showAudioVideoSettingsButton: true,
-           	showScreenSharingButton: true,
-           	showTextChat: true,
-           	showUserList: true,
-           	maxUsers: 50,
-           	layout: "Grid",
-           	showLayoutButton: true,
-         
+                turnOnMicrophoneWhenJoining: false,
+                turnOnCameraWhenJoining: false,
+                showMyCameraToggleButton: true,
+                showMyMicrophoneToggleButton: true,
+                showAudioVideoSettingsButton: true,
+                showScreenSharingButton: true,
+                showTextChat: true,
+                showUserList: true,
+                maxUsers: 50,
+                layout: "Grid",
+                showLayoutButton: true,
             });
-}
-</script>
+        }
+    </script>
+    <script>
+        let recorder;
+        let isRecording = false;
+        function toggleRecording() {
+            if (!isRecording) {
+                startRecording();
+                document.getElementById('recordButton').innerText = 'Stop Recording';
+            } else {
+                stopRecording();
+                document.getElementById('recordButton').innerText = 'Start Recording';
+            }
+            isRecording = !isRecording;
+        }
+
+        function startRecording() {
+            navigator.mediaDevices.getDisplayMedia({  video: true, audio: true })
+                .then(screenStream => {
+                    stream = screenStream;
+                    recorder = new MediaRecorder(screenStream);
+                    let recordedChunks = [];
+
+                    recorder.ondataavailable = event => {
+                        recordedChunks.push(event.data);
+                    };
+
+                    recorder.onstop = () => {
+                        let recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
+                        sendRecordingData(recordedBlob);
+                    };
+
+                    recorder.start();
+                })
+                .catch(error => {
+                    console.error('Error capturing screen:', error);
+                });
+        }
+
+        function stopRecording() {
+            if (recorder && recorder.state !== 'inactive') {
+                recorder.stop();
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        function sendRecordingData(recordedBlob) {
+            // Sending data to Django using fetch
+            let formData = new FormData();
+            formData.append('recordedData', recordedBlob);
+
+            fetch('/record-meeting', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    console.log('Recording saved successfully!');
+                    // Handle success, if needed
+                } else {
+                    console.error('Error saving recording:', data.error);
+                    // Handle failure, if needed
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
 
 </html>

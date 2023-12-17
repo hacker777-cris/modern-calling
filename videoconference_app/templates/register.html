@@ -1,40 +1,54 @@
-{% load static %}
 <!DOCTYPE html>
 <!---Coding By CoderGirl | www.codinglabweb.com--->
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <!--<title>Login & Registration Form | CoderGirl</title>-->
-  <!---Custom CSS File--->
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!--<title>Login & Registration Form | CoderGirl</title>-->
+    <!---Tailwind CSS CDN--->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Your custom styles can go here if needed */
+    </style>
 </head>
-<body>
-  <div class="container">
-    <div class="registration form">
-      <header>Signup</header>
-      <form action="{% url 'register' %}" method="POST">
-        {% csrf_token %}
-        <input type="text" placeholder="Enter your first name" name="first_name">
-        <input type="text" placeholder="Enter your last name" name="last_name">
-        <input type="text" placeholder="Enter your email" name="email">
-        <input type="password" placeholder="Create a password" name="password1">
-        <input type="password" placeholder="Confirm your password" name="password2">
-        <input type="submit" class="button" value="Signup">
-        <center>
-          {% if error %}
-          <p style="color: red;">{{ error }}</p>
-          {% endif %}
-        </center>
-        
-      </form>
-      <div class="signup">
-        <span class="signup">Already have an account?
-          <a href="{% url 'login' %}"><label for="check">Signin</label></a>
-        </span>
-      </div>
+
+<body class="bg-gray-100">
+    <div class="flex justify-center items-center h-screen">
+        <div class="w-full max-w-xs">
+            <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" action="{% url 'register' %}" method="POST">
+               {% csrf_token %}
+                <h1 class="text-2xl font-bold mb-4 text-center text-gray-800">Signup</h1>
+                <div class="mb-4">
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="first_name" type="text" placeholder="Enter your first name" name="first_name">
+                </div>
+                <div class="mb-4">
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="last_name" type="text" placeholder="Enter your last name" name="last_name">
+                </div>
+                <div class="mb-4">
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="text" placeholder="Enter your email" name="email">
+                </div>
+                <div class="mb-4">
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password1" type="password" placeholder="Create a password" name="password1">
+                </div>
+                <div class="mb-6">
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password2" type="password" placeholder="Confirm your password" name="password2">
+                </div>
+                <div class="flex items-center justify-center">
+                    <input type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full transition duration-300" value="Signup">
+                </div>
+                <center>
+                    {% if error %}
+                    <p style="color: red;">{{ error }}</p>
+                    {% endif %}
+                </center>
+            </form>
+            <div class="text-center">
+                <p class="text-gray-600 text-sm">Already have an account? <a href="{% url 'login' %}" class="text-blue-500">Signin</a></p>
+            </div>
+        </div>
     </div>
-  </div>
 </body>
+
 </html>
