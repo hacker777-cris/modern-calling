@@ -50,7 +50,7 @@ def dashboard(request):
 
 
 def videocall(request):
-    return render(request, 'videocall.html', {'name': request.user.first_name + " " + request.user.last_name})
+    return render(request, 'videocall.html', {'name': " "})
 
 @login_required
 def logout_view(request):

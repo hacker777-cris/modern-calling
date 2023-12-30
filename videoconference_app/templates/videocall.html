@@ -29,7 +29,7 @@
 
             const roomID = getUrlParams(window.location.href)['roomID'] || (Math.floor(Math.random() * 10000) + "");
             const userID = Math.floor(Math.random() * 10000) + "";
-            const userName = "{{ name }}"
+            const userName = roomID
             const appID = 978269005; // Change this
             const serverSecret = "3143777d060d541f39c90fe40f897de2"; // Change this
             const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
@@ -57,6 +57,8 @@
                 layout: "Grid",
                 showLayoutButton: true,
             });
+            //Recording should start
+            //make api request to backend logic not complete
         }
     </script>
     <script>
