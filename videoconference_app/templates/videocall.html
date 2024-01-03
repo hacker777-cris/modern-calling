@@ -19,6 +19,72 @@
 {% endif %}
     <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
     <script>
+
+
+        async function makeRecordingRequest(RoomId){
+	
+            const url = "/check-recording";
+            body = {
+        
+                "room_id":`${RoomId}`,
+                //"CALL_SIGN": `${callSign}`,
+            };
+        
+            const headers = {
+        
+                'Content-type' : 'application/json', 
+            };
+            
+            try{
+                const response = await fetch(url,{
+                method:"POST",
+                headers :headers,
+        
+                //TODO ADD BODY TO THE REQUEST
+                body:JSON.stringify(body),
+        
+                });
+        
+                //console.log(response.body);
+        
+                if(response.ok){
+
+                    alert("GResponse alert");
+        
+                    try{
+                        const data = await response.json();
+                        //console.log(data.CALL_SIGN);
+                        {% comment %} 
+                            console.log(data.success);
+                            alert(data.success); 
+                        {% endcomment %}
+                        if(data.success){
+        
+                            //alert("GMWMWMWMW");
+                            startRecording();
+                            //console.error("MWAHAHHAHAHAHAHHA");
+                        }
+                        
+                    } catch (error) {
+        
+                        console.log(`FAILED TO CONVERT RESPONSE DATA TO JSON\n ${error}\n `);
+                        return;
+                    }
+        
+        
+                }
+            
+                
+            } catch (error){
+        
+                console.log(`SOMETHING WENT WRONG WHILE GETTING ROOM RECORDING DATA ${error}`);
+            }
+        
+            
+        };
+
+
+
         window.onload = function () {
             function getUrlParams(url) {
                 let urlStr = url.split('?')[1];
@@ -56,131 +122,69 @@
                 maxUsers: 50,
                 layout: "Grid",
                 showLayoutButton: true,
+                
             });
+            makeRecordingRequest(roomID);
             //Recording should start
 
             //RECORDING FUNCTION TO BE TESTED
 
-            async function makeRecordingRequest(RoomId,callSign){
-	/**
-	 *
-	 *this function returns true or false depending on the CALL_SIGN messsage recieved from the server
-	 * 
-	 * **/
-
-	//Fetch the data from url
-	const url = "/check-recording";
-	body = {
-
-		"ROOM_ID":`${RoomId}`,
-		"CALL_SIGN": `${callSign}`,
-	};
-
-	const headers = {
-
-		'Content-type' : 'application/json', 
-	};
-	
-	try{
-		const response = await fetch(url,{
-		method:"POST",
-		headers :headers,
-
-		//TODO ADD BODY TO THE REQUEST
-		body:JSON.stringify(body),
-
-		});
-
-		//console.log(response.body);
-
-		if(response.ok){
-
-			try{
-				const data = await response.json();
-				console.log(data.CALL_SIGN);
-				
-				switch(data.CALL_SIGN){
-
-					/**
-					 * Should return true or false depending on the response
-					 * If the response is true,the recording function will be called
-					 * else the recording wont be called
-					 *
-					**/
-					case 'AVAILABLE' :
-						return false;
-						break;
-
-					case 'NOT_AVAILABLE':
-						return true;
-						break;
-					default:
-						console.log("INVALID RESPONSE");
-
-
-				}
-
-			} catch (error) {
-
-				console.log(`FAILED TO CONVERT RESPONSE DATA TO JSON\n ${error}\n `);
-				return;
-			}
-
-
-		}
-	
-		
-	} catch (error){
-
-		console.log(`SOMETHING WENT WRONG WHILE GETTING ROOM RECORDING DATA ${error}`);
-	}
-
-	
-};
-
-//makeRecordingRequest(1234,"POLLING");
-
-async function startRecording(roomId,CALL_SIGN){
-
-	try {
-		const promise = await makeRecordingRequest(roomId,CALL_SIGN);
-		//console.log(promise);
-		if(promise){
-
-			//CALL FUNCTION TO RECORD
-			console.log("no recording, recording in progress..");
-			return;
-		}
-		console.log("recording exists or in progress, not recording..");
-
-		return;
-
-
-
-	}catch (error) {
-
-		console.log(`ERROR WHEN STARTING RECORDING\n${error}`);
-
-	}
-
-};
-
-startRecording();
-
-function stopRecording(){
-
-	//CALL FUNCTION TO STOP THE RECORDING
-
-};
-            
-//END OF RECORDING LOGIC
-            
-            //make api request to backend logic not complete
         }
-    </script>
-    <script>
+    {% comment %} </script>
+    <script> {% endcomment %}
         let recorder;
         let isRecording = false;
+
+
+
+        
+        
+        
+        
+        
+        {% comment %} 
+        
+        async function start_recording(roomId,CALL_SIGN){
+        
+            try {
+                const promise = await makeRecordingRequest(roomId,CALL_SIGN);
+                //console.log(promise);
+                if(promise){
+        
+                    //CALL FUNCTION TO RECORD
+                    console.log("no recording, recording in progress..");
+                    return;
+                }
+                console.log("recording exists or in progress, not recording..");
+        
+                return;
+        
+        
+        
+            }catch (error) {
+        
+                console.log(`ERROR WHEN STARTING RECORDING\n${error}`);
+        
+            }
+        
+        }; 
+        
+        {% endcomment %}
+        
+        
+        
+                    
+        //END OF RECORDING LOGIC
+                    
+                    //make api request to backend logic not complete
+                
+
+
+
+
+
+
+
         function toggleRecording() {
             if (!isRecording) {
                 startRecording();
