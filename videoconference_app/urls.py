@@ -11,6 +11,7 @@ urlpatterns = [
     path("record-meeting",views.save_recording),
     path('view-recordings/', views.view_recordings, name='view_recordings'),
     path('download/<int:recording_id>/', views.download_recording, name='download_recording'),
+    path('check-recording',views.CheckRecording.as_view()),
     path('',views.index, name='index'),
 
 ]

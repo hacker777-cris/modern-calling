@@ -8,3 +8,8 @@ class Recording(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class IsRecording(models.Model):
+    room_id = models.CharField(max_length=100)
+    

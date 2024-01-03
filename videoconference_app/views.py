@@ -5,10 +5,12 @@ from django.contrib.auth.decorators import login_required
 import json
 import random
 import string
+from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from datetime import datetime  # Import datetime correctly
-from .models import Recording
+from .models import Recording,IsRecording
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
@@ -46,7 +48,7 @@ def login_view(request):
     return render(request, 'login.html')
 
 def dashboard(request):
-    return render(request, 'dashboard.html', {'name': request.user.first_name})
+    return render(request, 'dashboard.html', {'name':""})
 
 
 def videocall(request):
@@ -103,19 +105,21 @@ def download_recording(request, recording_id):
     response = FileResponse(open(file_path, 'rb'), as_attachment=True)
     return response
 
-@api_view(['POST'])
-def create_room(request):
-    if request.method == 'POST':
-        # Get the name from the request body
-        name = request.data.get('name')
 
-        # Generate a random 4-digit room ID
-        room_id = ''.join(random.choices(string.digits, k=4))
-
-        # Construct the redirect URL with the room ID
-        redirect_url = f'/meeting/?roomId={room_id}'
-
-        # Return room ID and redirect URL in the response
-        return Response({'room_id': room_id, 'redirect_url': redirect_url})
-
-    return Response({'error': 'Invalid request'})
+class CheckRecording(APIView):
+    def post(self, request):
+        room_id = request.data.get("room_id")
+        try:
+            is_recording = IsRecording.objects.get(room_id=room_id)
+            # If the object exists, return False
+            return Response({
+                "success": False,
+                "message":"Recording already exists"}, 
+                status=status.HTTP_200_OK)
+        except IsRecording.DoesNotExist:
+            # If the object does not exist, create a new object and return True
+            IsRecording.objects.create(room_id=room_id)
+            return Response({
+                "success": True,
+                "message":"Recording does not exist"}, 
+                status=status.HTTP_201_CREATED)
