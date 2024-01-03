@@ -69,7 +69,7 @@
 	 * **/
 
 	//Fetch the data from url
-	const url = "http://127.0.0.1:8000/testing-api";
+	const url = "http://127.0.0.1:8000/check-recording";
 	body = {
 
 		"ROOM_ID":`${RoomId}`,
@@ -83,11 +83,11 @@
 	
 	try{
 		const response = await fetch(url,{
-		method:"GET",
+		method:"POST",
 		headers :headers,
 
 		//TODO ADD BODY TO THE REQUEST
-		//body:JSON.stringify(body),
+		body:JSON.stringify(body),
 
 		});
 
